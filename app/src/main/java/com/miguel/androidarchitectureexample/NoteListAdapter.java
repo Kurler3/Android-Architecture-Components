@@ -16,8 +16,9 @@ import java.util.List;
 public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolder> {
     //This list needs to be initialized here, because the live data can't be loaded into a null list.
     private List<Note> mNoteList = new ArrayList<>();
+    OnItemClickListener listener;
 
-    class NoteViewHolder extends RecyclerView.ViewHolder{
+    class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView mNoteTitle;
         TextView mNoteDescription;
         TextView mNotePriority;
@@ -28,8 +29,16 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteVi
             mNoteTitle = itemView.findViewById(R.id.text_view_note_title);
             mNoteDescription = itemView.findViewById(R.id.text_view_note_description);
             mNotePriority = itemView.findViewById(R.id.text_view_note_priority);
+
+            //Update the Note clicked
+            itemView.setOnClickListener(view -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION)
+                    listener.onItemClick(mNoteList.get(position));
+            });
         }
     }
+
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -53,10 +62,22 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteVi
         return mNoteList.size();
     }
 
+    public Note getNoteAt(int position) {
+        return mNoteList.get(position);
+    }
+
     //On callback the database receives three notes. Will create a function to receive those notes
-    public void setNotes(List<Note> notes){
+    public void setNotes(List<Note> notes) {
         this.mNoteList = notes;
         //Will change the way to update the recycler view later. There are better notify methods.
         notifyDataSetChanged();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Note note);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 }
