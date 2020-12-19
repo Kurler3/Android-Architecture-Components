@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+        <item
+            android:id="@+id/save_note"
+            android:icon="@drawable/save"
+            android:title="Save"
+            app:showAsAction="ifRoom"/>
+    //ShowasAction=ifRoom makes it so that it shows its icon if theres room,
+    // otherwise it shows the overflow menu and the text
+</menu>
