@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AndroidArchitectureExample</string>
+    <string name="snack_bar_undo_delete">Note Deleted</string>
+    <string name="undo_delete">UNDO</string>
 </resources>

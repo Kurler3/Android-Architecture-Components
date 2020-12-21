@@ -15,9 +15,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -65,8 +67,17 @@ public class MainActivity extends AppCompatActivity implements NoteListAdapter.O
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                noteViewModel.delete(adapter.getNoteAt(viewHolder.getAdapterPosition()));
-                Toast.makeText(MainActivity.this, "Note Deleted", Toast.LENGTH_SHORT).show();
+                Note deletedNote = adapter.getNoteAt(viewHolder.getAdapterPosition());
+                noteViewModel.delete(deletedNote);
+
+                //Show a Snackbar asking if want to undo, if want to undo
+                Snackbar snackbar = Snackbar.make(viewHolder.itemView, R.string.snack_bar_undo_delete, Snackbar.LENGTH_LONG);
+                snackbar.setAction(R.string.undo_delete, view -> {
+                    //If the user clicks on the undo button then insert the note back into database
+                    noteViewModel.insert(deletedNote);
+                });
+                snackbar.show();
+
             }
         }).attachToRecyclerView(mRecyclerView);
 
