@@ -6,6 +6,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AdapterListUpdateCallback;
+import androidx.recyclerview.widget.AsyncDifferConfig;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
@@ -13,10 +18,32 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolder> {
+public class NoteListAdapter extends ListAdapter<Note, NoteListAdapter.NoteViewHolder> {
     //This list needs to be initialized here, because the live data can't be loaded into a null list.
-    private List<Note> mNoteList = new ArrayList<>();
     OnItemClickListener listener;
+
+    protected NoteListAdapter() {
+        super(DIFF_CALLBACK);
+    }
+
+    private static DiffUtil.ItemCallback<Note> DIFF_CALLBACK = new DiffUtil.ItemCallback<Note>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
+            //for two items to be the same, the contents don't have to be the same but it has to be the same entry in the database
+            return oldItem.getId()==newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
+            // Here we only return true if nothing in the same item changed. If this returns false then the adapter will update this item
+            if(newItem.getTitle().equals(oldItem.getTitle()) && newItem.getDescription().equals(oldItem.getDescription())
+            && newItem.getPriority()==oldItem.getPriority()){
+                return true;
+            }
+
+            return false;
+        }
+    };
 
     class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView mNoteTitle;
@@ -34,7 +61,7 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteVi
             itemView.setOnClickListener(view -> {
                 int position = getAdapterPosition();
                 if (listener != null && position != RecyclerView.NO_POSITION)
-                    listener.onItemClick(mNoteList.get(position));
+                    listener.onItemClick(getItem(position));
             });
         }
     }
@@ -49,28 +76,16 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteVi
 
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
-        Note currentNote = mNoteList.get(position);
+        //getItem is a function from ListAdapter, and acesses the array list passed to it on every change.
+        Note currentNote = getItem(position);
 
         //Assigning to views
         holder.mNoteTitle.setText(currentNote.getTitle());
         holder.mNoteDescription.setText(currentNote.getDescription());
         holder.mNotePriority.setText(String.valueOf(currentNote.getPriority()));
     }
-
-    @Override
-    public int getItemCount() {
-        return mNoteList.size();
-    }
-
     public Note getNoteAt(int position) {
-        return mNoteList.get(position);
-    }
-
-    //On callback the database receives three notes. Will create a function to receive those notes
-    public void setNotes(List<Note> notes) {
-        this.mNoteList = notes;
-        //Will change the way to update the recycler view later. There are better notify methods.
-        notifyDataSetChanged();
+        return getItem(position);
     }
 
     public interface OnItemClickListener {

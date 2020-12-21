@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements NoteListAdapter.O
             @Override
             public void onChanged(List<Note> notes) {
                 //update recycler view
-                adapter.setNotes(notes);
+                adapter.submitList(notes);
                 for(int i=0;i<notes.size();i++){
                     Log.d(LOG_TAG, "Added " + notes.get(i).getTitle(),null);
                 }
